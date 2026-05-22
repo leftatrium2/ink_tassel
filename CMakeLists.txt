@@ -16,6 +16,7 @@ set(SOURCES
     src/menu.c
     src/file_io.c
     src/password.c
+    src/i18n.c
 )
 
 add_executable(ink_tassel ${SOURCES})

@@ -155,11 +155,11 @@ static void prompt_open_file(void)
 
     curs_set(1);
 
-    prompt_width = utf8_display_width("文件名: ");
+    prompt_width = utf8_display_width(T(STR_PROMPT_FILENAME));
 
     move(LINES - 1, 0);
     clrtoeol();
-    mvaddstr(LINES - 1, 0, "文件名: ");
+    mvaddstr(LINES - 1, 0, T(STR_PROMPT_FILENAME));
     refresh();
 
     pos = 0;
@@ -238,16 +238,17 @@ static void prompt_open_file(void)
             g_editor.cur_row = 0;
             g_editor.cur_col = 0;
             g_editor.top_row = 0;
-            snprintf(g_editor.msg, MSG_SIZE, "已读取文件: %s", input);
+            snprintf(g_editor.msg, MSG_SIZE, T(STR_MSG_FILE_READ_OK), input);
         }
         else
         {
-            snprintf(g_editor.msg, MSG_SIZE, "读取文件失败: %s", input);
+            snprintf(g_editor.msg, MSG_SIZE, T(STR_MSG_FILE_READ_FAIL), input);
         }
     }
     else
     {
-        snprintf(g_editor.msg, MSG_SIZE, EDITOR_NAME " " EDITOR_VERSION " - ESC:菜单");
+        snprintf(g_editor.msg, MSG_SIZE, EDITOR_NAME " " EDITOR_VERSION " - %s",
+                 T(STR_MSG_ESC_MENU));
     }
 }
 
@@ -324,17 +325,19 @@ int input_process_key(wint_t ch)
             {
                 if (file_write(g_editor.filename) == 0)
                 {
-                    snprintf(g_editor.msg, MSG_SIZE, "已保存: %s", g_editor.filename);
+                    snprintf(g_editor.msg, MSG_SIZE, T(STR_MSG_SAVED),
+                             g_editor.filename);
                     g_editor.modified = 0;
                 }
                 else
                 {
-                    snprintf(g_editor.msg, MSG_SIZE, "保存失败: %s", g_editor.filename);
+                    snprintf(g_editor.msg, MSG_SIZE, T(STR_MSG_SAVE_FAILED),
+                             g_editor.filename);
                 }
             }
             else
             {
-                strncpy(g_editor.msg, "请使用菜单保存新文件", MSG_SIZE);
+                strncpy(g_editor.msg, T(STR_MSG_USE_MENU_SAVE), MSG_SIZE);
             }
             break;
 

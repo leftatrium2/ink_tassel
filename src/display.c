@@ -10,9 +10,13 @@ void display_status_bar(void)
 {
     int max_x;
     int display_col;
-    char status[COLS + 1];
+    char status[1024];
 
     max_x = COLS;
+    if (max_x > (int)(sizeof(status) - 1))
+    {
+        max_x = (int)(sizeof(status) - 1);
+    }
 
     /* 计算光标的显示列（非字节偏移） */
     if (g_editor.cur_row >= 0 && g_editor.cur_row < g_editor.num_lines)
@@ -31,21 +35,28 @@ void display_status_bar(void)
     if (g_editor.has_filename)
     {
         snprintf(status, sizeof(status),
-                 "文件: %s  行: %d/%d  列: %d %s",
+                 "%s%s  %s%d/%d  %s%d %s",
+                 T(STR_STATUS_FILE),
                  g_editor.filename,
+                 T(STR_STATUS_LINE),
                  g_editor.cur_row + 1,
                  g_editor.num_lines,
+                 T(STR_STATUS_COL),
                  display_col + 1,
-                 g_editor.modified ? "[已修改]" : "");
+                 g_editor.modified ? T(STR_STATUS_MODIFIED) : "");
     }
     else
     {
         snprintf(status, sizeof(status),
-                 "文件: [未命名]  行: %d/%d  列: %d %s",
+                 "%s%s  %s%d/%d  %s%d %s",
+                 T(STR_STATUS_FILE),
+                 T(STR_STATUS_UNNAMED),
+                 T(STR_STATUS_LINE),
                  g_editor.cur_row + 1,
                  g_editor.num_lines,
+                 T(STR_STATUS_COL),
                  display_col + 1,
-                 g_editor.modified ? "[已修改]" : "");
+                 g_editor.modified ? T(STR_STATUS_MODIFIED) : "");
     }
 
     /* 填充空白至行尾 */

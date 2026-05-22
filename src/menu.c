@@ -6,42 +6,42 @@
 /* ---- 菜单数据定义 ---- */
 
 #define MENU_SEPARATOR "--------"
-
-static const char *g_top_menu_names[MENU_TOP_COUNT] =
-{
-    "文件", "编辑", "云存储", "帮助"
-};
-
-static const char *g_file_items[MENU_FILE_COUNT] =
-{
-    "保存文件",
-    "存盘退出",
-    "放弃存盘",
-    "读文件",
-    "设置密码",
-    MENU_SEPARATOR,
-    "设置"
-};
-
-static const char *g_edit_items[MENU_EDIT_COUNT] =
-{
-    "撤销",
-    "重做",
-    MENU_SEPARATOR,
-    "查找"
-};
-
-static const char *g_cloud_items[MENU_CLOUD_COUNT] =
-{
-    "同步"
-};
-
-static const char *g_help_items[MENU_HELP_COUNT] =
-{
-    "关于"
-};
-
 #define MENU_WIDTH 24
+
+static int g_file_keys[MENU_FILE_COUNT] =
+{
+    STR_FILE_SAVE,
+    STR_FILE_SAVE_EXIT,
+    STR_FILE_DISCARD,
+    STR_FILE_READ,
+    STR_FILE_SET_PWD,
+    -1,
+    STR_FILE_SETTINGS
+};
+
+static int g_edit_keys[MENU_EDIT_COUNT] =
+{
+    STR_EDIT_UNDO,
+    STR_EDIT_REDO,
+    -1,
+    STR_EDIT_FIND
+};
+
+static int g_cloud_keys[MENU_CLOUD_COUNT] =
+{
+    STR_CLOUD_SYNC
+};
+
+static int g_help_keys[MENU_HELP_COUNT] =
+{
+    STR_HELP_ABOUT
+};
+
+static int g_lang_keys[MENU_LANG_COUNT] =
+{
+    STR_LANG_ZH,
+    STR_LANG_EN
+};
 
 /* ---- 获取当前菜单的项数 ---- */
 
@@ -57,25 +57,38 @@ static int menu_item_count(int top_sel)
     }
 }
 
-/* ---- 获取当前菜单的项名称 ---- */
+/* ---- 获取菜单项文本 ---- */
 
-static const char **menu_items(int top_sel)
+static const char *menu_item_text(int top_sel, int idx)
 {
+    int *keys = NULL;
+    int count = 0;
+
     switch (top_sel)
     {
-        case MENU_TOP_FILE:  return g_file_items;
-        case MENU_TOP_EDIT:  return g_edit_items;
-        case MENU_TOP_CLOUD: return g_cloud_items;
-        case MENU_TOP_HELP:  return g_help_items;
-        default:             return NULL;
+        case MENU_TOP_FILE:  keys = g_file_keys;  count = MENU_FILE_COUNT;  break;
+        case MENU_TOP_EDIT:  keys = g_edit_keys;  count = MENU_EDIT_COUNT;  break;
+        case MENU_TOP_CLOUD: keys = g_cloud_keys; count = MENU_CLOUD_COUNT; break;
+        case MENU_TOP_HELP:  keys = g_help_keys;  count = MENU_HELP_COUNT;  break;
+        default: return "";
     }
+    if (idx < 0 || idx >= count) return "";
+    if (keys[idx] < 0) return MENU_SEPARATOR;
+    return T(keys[idx]);
 }
 
 /* ---- 判断是否为分割线 ---- */
 
-static int is_separator(const char *item)
+static int is_separator_idx(int top_sel, int idx)
 {
-    return (strcmp(item, MENU_SEPARATOR) == 0);
+    int *keys = NULL;
+    switch (top_sel)
+    {
+        case MENU_TOP_FILE: keys = g_file_keys; break;
+        case MENU_TOP_EDIT: keys = g_edit_keys; break;
+        default: return 0;
+    }
+    return (keys[idx] < 0);
 }
 
 /* ---- 辅助: 底部输入提示 ---- */
@@ -97,7 +110,6 @@ static void prompt_input(const char *prompt_str, char *out_buf, int buf_size)
     pos = 0;
     done = 0;
     memset(out_buf, 0, (size_t)buf_size);
-/* PROMPT_LOOP */
 
     while (!done)
     {
@@ -149,7 +161,6 @@ static void prompt_input(const char *prompt_str, char *out_buf, int buf_size)
     }
     curs_set(1);
 }
-/* ACTIONS_MARKER */
 
 /* ---- 菜单回调: 文件 ---- */
 
@@ -159,10 +170,10 @@ static void menu_action_save(void)
 
     if (!g_editor.has_filename)
     {
-        prompt_input("保存为(文件名): ", fname, FILENAME_SIZE);
+        prompt_input(T(STR_PROMPT_SAVE_AS), fname, FILENAME_SIZE);
         if (fname[0] == '\0')
         {
-            snprintf(g_editor.msg, MSG_SIZE, "取消保存");
+            snprintf(g_editor.msg, MSG_SIZE, "%s", T(STR_MSG_CANCEL_SAVE));
             return;
         }
         strncpy(g_editor.filename, fname, FILENAME_SIZE - 1);
@@ -172,12 +183,13 @@ static void menu_action_save(void)
 
     if (file_write(g_editor.filename) == 0)
     {
-        snprintf(g_editor.msg, MSG_SIZE, "已保存: %s", g_editor.filename);
+        snprintf(g_editor.msg, MSG_SIZE, T(STR_MSG_SAVED), g_editor.filename);
         g_editor.modified = 0;
     }
     else
     {
-        snprintf(g_editor.msg, MSG_SIZE, "保存失败: %s", g_editor.filename);
+        snprintf(g_editor.msg, MSG_SIZE, T(STR_MSG_SAVE_FAILED),
+                 g_editor.filename);
     }
 }
 
@@ -193,18 +205,19 @@ static void menu_action_discard(void)
     g_editor.running = 0;
 }
 
+/* MENU_ACTIONS_CONT */
+
 static void menu_action_read(void)
 {
     char fname[FILENAME_SIZE];
 
-    prompt_input("文件名: ", fname, FILENAME_SIZE);
+    prompt_input(T(STR_PROMPT_FILENAME), fname, FILENAME_SIZE);
     if (fname[0] == '\0')
     {
         snprintf(g_editor.msg, MSG_SIZE,
-                 EDITOR_NAME " " EDITOR_VERSION " - ESC:菜单");
+                 EDITOR_NAME " " EDITOR_VERSION " - %s", T(STR_MSG_ESC_MENU));
         return;
     }
-/* READ_CONT */
 
     if (file_read(fname) == 0)
     {
@@ -215,11 +228,11 @@ static void menu_action_read(void)
         g_editor.cur_row = 0;
         g_editor.cur_col = 0;
         g_editor.top_row = 0;
-        snprintf(g_editor.msg, MSG_SIZE, "已读取文件: %s", fname);
+        snprintf(g_editor.msg, MSG_SIZE, T(STR_MSG_FILE_READ_OK), fname);
     }
     else
     {
-        snprintf(g_editor.msg, MSG_SIZE, "读取文件失败: %s", fname);
+        snprintf(g_editor.msg, MSG_SIZE, T(STR_MSG_FILE_READ_FAIL), fname);
     }
 }
 
@@ -228,42 +241,42 @@ static void menu_action_set_password(void)
     char pwd[64];
     char confirm[64];
 
-    prompt_input("输入新密码: ", pwd, 64);
+    prompt_input(T(STR_PROMPT_NEW_PWD), pwd, 64);
     if (pwd[0] == '\0')
     {
-        snprintf(g_editor.msg, MSG_SIZE, "取消设置密码");
+        snprintf(g_editor.msg, MSG_SIZE, "%s", T(STR_MSG_CANCEL_PWD));
         return;
     }
 
-    prompt_input("确认密码: ", confirm, 64);
+    prompt_input(T(STR_PROMPT_CONFIRM_PWD), confirm, 64);
     if (confirm[0] == '\0')
     {
-        snprintf(g_editor.msg, MSG_SIZE, "取消设置密码");
+        snprintf(g_editor.msg, MSG_SIZE, "%s", T(STR_MSG_CANCEL_PWD));
         return;
     }
+/* MENU_ACTIONS_CONT2 */
 
     if (strcmp(pwd, confirm) != 0)
     {
-        snprintf(g_editor.msg, MSG_SIZE, "密码不匹配");
+        snprintf(g_editor.msg, MSG_SIZE, "%s", T(STR_MSG_PWD_MISMATCH));
         return;
     }
 
     strncpy(g_editor.password, pwd, 63);
     g_editor.password[63] = '\0';
     g_editor.has_password = 1;
-    snprintf(g_editor.msg, MSG_SIZE, "密码已设置");
+    snprintf(g_editor.msg, MSG_SIZE, "%s", T(STR_MSG_PWD_SET));
 }
-/* EXECUTE_MARKER */
 
 static void menu_action_not_implemented(void)
 {
-    snprintf(g_editor.msg, MSG_SIZE, "暂无此功能");
+    snprintf(g_editor.msg, MSG_SIZE, "%s", T(STR_MSG_NOT_IMPL));
 }
 
 static void menu_action_about(void)
 {
     snprintf(g_editor.msg, MSG_SIZE,
-             EDITOR_NAME " v" EDITOR_VERSION " - 文本编辑器");
+             T(STR_MSG_ABOUT_FMT), EDITOR_NAME, EDITOR_VERSION);
 }
 
 /* ---- 执行菜单项 ---- */
@@ -294,6 +307,7 @@ static void menu_execute(int top_sel, int sel)
                 default: break;
             }
             break;
+/* MENU_EXECUTE_CONT */
 
         case MENU_TOP_CLOUD:
             menu_action_not_implemented();
@@ -307,7 +321,20 @@ static void menu_execute(int top_sel, int sel)
             break;
     }
 }
-/* DRAW_MARKER */
+
+/* ---- 执行右侧语言菜单 ---- */
+
+static void menu_execute_lang(int sel)
+{
+    switch (sel)
+    {
+        case MENU_LANG_ZH: i18n_set_lang(LANG_ZH); break;
+        case MENU_LANG_EN: i18n_set_lang(LANG_EN); break;
+        default: break;
+    }
+    snprintf(g_editor.msg, MSG_SIZE,
+             EDITOR_NAME " " EDITOR_VERSION " - %s", T(STR_MSG_ESC_MENU));
+}
 
 /* ---- 绘制顶部菜单栏 ---- */
 
@@ -315,34 +342,54 @@ static void menu_draw_top_bar(void)
 {
     int i;
     int x = 1;
+    int right_x;
+    const char *lang_label;
 
     move(1, 0);
     clrtoeol();
 
     for (i = 0; i < MENU_TOP_COUNT; i++)
     {
+        const char *name = T(STR_MENU_FILE + i);
         move(1, x);
-        if (i == g_editor.menu_top_sel)
+        if (!g_editor.menu_right_active && i == g_editor.menu_top_sel)
             attron(A_REVERSE);
         addch(' ');
-        addstr(g_top_menu_names[i]);
+        addstr(name);
         addch(' ');
-        if (i == g_editor.menu_top_sel)
+/* MENU_TOPBAR_CONT */
+        if (!g_editor.menu_right_active && i == g_editor.menu_top_sel)
             attroff(A_REVERSE);
-        x += utf8_display_width(g_top_menu_names[i]) + 3;
+        x += utf8_display_width(name) + 3;
     }
+
+    lang_label = T(STR_MENU_LANG);
+    right_x = COLS - utf8_display_width(lang_label) - 3;
+    if (right_x < x)
+        right_x = x + 2;
+
+    move(1, right_x);
+    if (g_editor.menu_right_active)
+        attron(A_REVERSE);
+    addch(' ');
+    addstr(lang_label);
+    addch(' ');
+    if (g_editor.menu_right_active)
+        attroff(A_REVERSE);
 }
 
-/* ---- 计算子菜单X偏移 ---- */
+/* ---- 计算左侧子菜单X偏移 ---- */
 
 static int menu_sub_x(int top_sel)
 {
     int x = 1;
     int i;
     for (i = 0; i < top_sel; i++)
-        x += utf8_display_width(g_top_menu_names[i]) + 3;
+        x += utf8_display_width(T(STR_MENU_FILE + i)) + 3;
     return x;
 }
+
+/* MENU_DRAW_START */
 
 /* ---- 绘制子菜单 ---- */
 
@@ -351,10 +398,8 @@ void menu_draw(void)
     int start_x;
     int start_y;
     int count;
-    const char **items;
     int i;
 
-    /* 清除文本区域，防止切换菜单时残留 */
     for (i = 1; i < LINES - 1; i++)
     {
         move(i, 0);
@@ -363,40 +408,82 @@ void menu_draw(void)
 
     menu_draw_top_bar();
 
+    if (g_editor.menu_right_active)
+    {
+        const char *lang_label = T(STR_MENU_LANG);
+        int left_x = 1;
+        for (i = 0; i < MENU_TOP_COUNT; i++)
+            left_x += utf8_display_width(T(STR_MENU_FILE + i)) + 3;
+        start_x = COLS - utf8_display_width(lang_label) - 3;
+        if (start_x < left_x)
+            start_x = left_x + 2;
+        start_y = 2;
+        count = MENU_LANG_COUNT;
+
+        move(start_y, start_x);
+        addch('+');
+        for (i = 0; i < MENU_WIDTH - 2; i++)
+            addch('-');
+        addch('+');
+
+        for (i = 0; i < count; i++)
+        {
+            int j;
+            int item_w;
+            const char *text = T(g_lang_keys[i]);
+            move(start_y + 1 + i, start_x);
+            addch('|');
+            item_w = utf8_display_width(text);
+            addch(' ');
+            if (i == g_editor.menu_right_sel)
+                attron(A_REVERSE);
+            addstr(text);
+/* MENU_DRAW_CONT */
+            for (j = item_w; j < MENU_WIDTH - 4; j++)
+                addch(' ');
+            if (i == g_editor.menu_right_sel)
+                attroff(A_REVERSE);
+            addch(' ');
+            addch('|');
+        }
+
+        move(start_y + 1 + count, start_x);
+        addch('+');
+        for (i = 0; i < MENU_WIDTH - 2; i++)
+            addch('-');
+        addch('+');
+        return;
+    }
+
     start_x = menu_sub_x(g_editor.menu_top_sel);
     start_y = 2;
     count = menu_item_count(g_editor.menu_top_sel);
-    items = menu_items(g_editor.menu_top_sel);
-    if (!items)
-        return;
-/* DRAW_ITEMS */
 
-    /* 顶部边框 */
     move(start_y, start_x);
     addch('+');
     for (i = 0; i < MENU_WIDTH - 2; i++)
         addch('-');
     addch('+');
 
-    /* 菜单项 */
     for (i = 0; i < count; i++)
     {
         int j;
+        const char *text = menu_item_text(g_editor.menu_top_sel, i);
         move(start_y + 1 + i, start_x);
         addch('|');
 
-        if (is_separator(items[i]))
+        if (is_separator_idx(g_editor.menu_top_sel, i))
         {
             for (j = 0; j < MENU_WIDTH - 2; j++)
                 addch('-');
         }
         else
         {
-            int item_w = utf8_display_width(items[i]);
+            int item_w = utf8_display_width(text);
             addch(' ');
             if (i == g_editor.menu_sel)
                 attron(A_REVERSE);
-            addstr(items[i]);
+            addstr(text);
             for (j = item_w; j < MENU_WIDTH - 4; j++)
                 addch(' ');
             if (i == g_editor.menu_sel)
@@ -405,25 +492,22 @@ void menu_draw(void)
         }
         addch('|');
     }
+/* MENU_DRAW_BOTTOM */
 
-    /* 底部边框 */
     move(start_y + 1 + count, start_x);
     addch('+');
     for (i = 0; i < MENU_WIDTH - 2; i++)
         addch('-');
     addch('+');
 }
-/* HANDLE_KEY_MARKER */
 
 /* ---- 跳过分割线辅助 ---- */
 
 static void menu_sel_skip_sep_down(void)
 {
     int count = menu_item_count(g_editor.menu_top_sel);
-    const char **items = menu_items(g_editor.menu_top_sel);
-    if (!items)
-        return;
-    while (g_editor.menu_sel < count && is_separator(items[g_editor.menu_sel]))
+    while (g_editor.menu_sel < count &&
+           is_separator_idx(g_editor.menu_top_sel, g_editor.menu_sel))
         g_editor.menu_sel++;
     if (g_editor.menu_sel >= count)
         g_editor.menu_sel = count - 1;
@@ -431,68 +515,127 @@ static void menu_sel_skip_sep_down(void)
 
 static void menu_sel_skip_sep_up(void)
 {
-    const char **items = menu_items(g_editor.menu_top_sel);
-    if (!items)
-        return;
-    while (g_editor.menu_sel >= 0 && is_separator(items[g_editor.menu_sel]))
+    while (g_editor.menu_sel >= 0 &&
+           is_separator_idx(g_editor.menu_top_sel, g_editor.menu_sel))
         g_editor.menu_sel--;
     if (g_editor.menu_sel < 0)
         g_editor.menu_sel = 0;
 }
 
+/* MENU_HANDLE_KEY_START */
+
 /* ---- 菜单按键处理 ---- */
 
 int menu_handle_key(int ch)
 {
-    int count = menu_item_count(g_editor.menu_top_sel);
-
-    switch (ch)
+    if (g_editor.menu_right_active)
     {
-        case KEY_UP:
-            g_editor.menu_sel--;
-            if (g_editor.menu_sel < 0)
-                g_editor.menu_sel = count - 1;
-            menu_sel_skip_sep_up();
-            break;
-
-        case KEY_DOWN:
-            g_editor.menu_sel++;
-            if (g_editor.menu_sel >= count)
-                g_editor.menu_sel = 0;
-            menu_sel_skip_sep_down();
-            break;
-
-        case KEY_LEFT:
-            g_editor.menu_top_sel--;
-            if (g_editor.menu_top_sel < 0)
+        switch (ch)
+        {
+            case KEY_UP:
+                g_editor.menu_right_sel--;
+                if (g_editor.menu_right_sel < 0)
+                    g_editor.menu_right_sel = MENU_LANG_COUNT - 1;
+                break;
+            case KEY_DOWN:
+                g_editor.menu_right_sel++;
+                if (g_editor.menu_right_sel >= MENU_LANG_COUNT)
+                    g_editor.menu_right_sel = 0;
+                break;
+            case KEY_LEFT:
+                g_editor.menu_right_active = 0;
                 g_editor.menu_top_sel = MENU_TOP_COUNT - 1;
-            g_editor.menu_sel = 0;
-            menu_sel_skip_sep_down();
-            break;
-
-        case KEY_RIGHT:
-            g_editor.menu_top_sel++;
-            if (g_editor.menu_top_sel >= MENU_TOP_COUNT)
+                g_editor.menu_sel = 0;
+                menu_sel_skip_sep_down();
+                break;
+            case KEY_RIGHT:
+                g_editor.menu_right_active = 0;
                 g_editor.menu_top_sel = 0;
-            g_editor.menu_sel = 0;
-            menu_sel_skip_sep_down();
-            break;
+                g_editor.menu_sel = 0;
+                menu_sel_skip_sep_down();
+                break;
+            case '\n':
+            case '\r':
+            case KEY_ENTER:
+                g_editor.menu_active = 0;
+                g_editor.menu_right_active = 0;
+                menu_execute_lang(g_editor.menu_right_sel);
+                break;
+            case 27:
+                g_editor.menu_active = 0;
+                g_editor.menu_right_active = 0;
+                snprintf(g_editor.msg, MSG_SIZE,
+                         EDITOR_NAME " " EDITOR_VERSION " - %s",
+                         T(STR_MSG_ESC_MENU));
+                break;
+            default:
+                break;
+        }
+        return 0;
+    }
+/* MENU_HANDLE_LEFT_KEY */
 
-        case '\n':
-        case '\r':
-        case KEY_ENTER:
-            g_editor.menu_active = 0;
-            menu_execute(g_editor.menu_top_sel, g_editor.menu_sel);
-            break;
+    {
+        int count = menu_item_count(g_editor.menu_top_sel);
 
-        case 27:
-            g_editor.menu_active = 0;
-            snprintf(g_editor.msg, MSG_SIZE,
-                     EDITOR_NAME " " EDITOR_VERSION " - ESC:菜单");
-            break;
+        switch (ch)
+        {
+            case KEY_UP:
+                g_editor.menu_sel--;
+                if (g_editor.menu_sel < 0)
+                    g_editor.menu_sel = count - 1;
+                menu_sel_skip_sep_up();
+                break;
 
-        default:
-            break;
+            case KEY_DOWN:
+                g_editor.menu_sel++;
+                if (g_editor.menu_sel >= count)
+                    g_editor.menu_sel = 0;
+                menu_sel_skip_sep_down();
+                break;
+
+            case KEY_LEFT:
+                g_editor.menu_top_sel--;
+                if (g_editor.menu_top_sel < 0)
+                {
+                    g_editor.menu_right_active = 1;
+                    g_editor.menu_right_sel = 0;
+                    return 0;
+                }
+                g_editor.menu_sel = 0;
+                menu_sel_skip_sep_down();
+                break;
+
+            case KEY_RIGHT:
+                g_editor.menu_top_sel++;
+                if (g_editor.menu_top_sel >= MENU_TOP_COUNT)
+                {
+                    g_editor.menu_right_active = 1;
+                    g_editor.menu_right_sel = 0;
+                    return 0;
+                }
+                g_editor.menu_sel = 0;
+                menu_sel_skip_sep_down();
+                break;
+
+            case '\n':
+            case '\r':
+            case KEY_ENTER:
+                g_editor.menu_active = 0;
+                menu_execute(g_editor.menu_top_sel, g_editor.menu_sel);
+                break;
+/* MENU_HANDLE_ESC */
+
+            case 27:
+                g_editor.menu_active = 0;
+                snprintf(g_editor.msg, MSG_SIZE,
+                         EDITOR_NAME " " EDITOR_VERSION " - %s",
+                         T(STR_MSG_ESC_MENU));
+                break;
+
+            default:
+                break;
+        }
     }
 
     return 0;

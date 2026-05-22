@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
     keypad(stdscr, TRUE);
     noecho();
     curs_set(1);
+    set_escdelay(25);
 
     /* 编辑器初始化 */
     editor_init();
@@ -44,6 +45,43 @@ int main(int argc, char *argv[])
 
         if (rc == ERR)
         {
+            continue;
+        }
+
+        if (ch == KEY_RESIZE)
+        {
+            int visible_rows;
+
+            /* 终端尺寸变化: 钳制光标和滚动位置, 清屏后重绘 */
+            visible_rows = LINES - 2;
+            if (visible_rows < 1)
+            {
+                visible_rows = 1;
+            }
+
+            if (g_editor.cur_row >= g_editor.num_lines)
+            {
+                g_editor.cur_row = g_editor.num_lines - 1;
+            }
+            if (g_editor.cur_row < 0)
+            {
+                g_editor.cur_row = 0;
+            }
+
+            if (g_editor.cur_row < g_editor.top_row)
+            {
+                g_editor.top_row = g_editor.cur_row;
+            }
+            if (g_editor.cur_row >= g_editor.top_row + visible_rows)
+            {
+                g_editor.top_row = g_editor.cur_row - visible_rows + 1;
+            }
+            if (g_editor.top_row < 0)
+            {
+                g_editor.top_row = 0;
+            }
+
+            clear();
             continue;
         }
 

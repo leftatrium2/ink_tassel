@@ -1,0 +1,63 @@
+#ifndef I18N_H
+#define I18N_H
+
+enum
+{
+    LANG_ZH = 0,
+    LANG_EN,
+    LANG_COUNT
+};
+
+enum
+{
+    STR_MENU_FILE = 0,
+    STR_MENU_EDIT,
+    STR_MENU_CLOUD,
+    STR_MENU_HELP,
+    STR_MENU_LANG,
+    STR_FILE_SAVE,
+    STR_FILE_SAVE_EXIT,
+    STR_FILE_DISCARD,
+    STR_FILE_READ,
+    STR_FILE_SET_PWD,
+    STR_FILE_SETTINGS,
+    STR_EDIT_UNDO,
+    STR_EDIT_REDO,
+    STR_EDIT_FIND,
+    STR_CLOUD_SYNC,
+    STR_HELP_ABOUT,
+    STR_LANG_ZH,
+    STR_LANG_EN,
+    STR_PROMPT_SAVE_AS,
+    STR_PROMPT_FILENAME,
+    STR_PROMPT_NEW_PWD,
+    STR_PROMPT_CONFIRM_PWD,
+    STR_PROMPT_ENTER_PWD,
+    STR_MSG_CANCEL_SAVE,
+    STR_MSG_SAVED,
+    STR_MSG_SAVE_FAILED,
+    STR_MSG_NOT_IMPL,
+    STR_MSG_ABOUT_FMT,
+    STR_MSG_ESC_MENU,
+    STR_MSG_FILE_READ_OK,
+    STR_MSG_FILE_READ_FAIL,
+    STR_MSG_USE_MENU_SAVE,
+    STR_MSG_CANCEL_PWD,
+    STR_MSG_PWD_MISMATCH,
+    STR_MSG_PWD_SET,
+    STR_STATUS_FILE,
+    STR_STATUS_LINE,
+    STR_STATUS_COL,
+    STR_STATUS_MODIFIED,
+    STR_STATUS_UNNAMED,
+    STR_COUNT
+};
+
+#define T(key) i18n_get(key)
+
+void i18n_init(void);
+void i18n_set_lang(int lang);
+int  i18n_get_lang(void);
+const char *i18n_get(int key);
+
+#endif

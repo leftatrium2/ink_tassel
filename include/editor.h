@@ -4,10 +4,11 @@
 #define _XOPEN_SOURCE_EXTENDED 1
 #include <ncurses.h>
 #include <wchar.h>
+#include "i18n.h"
 
 /* ---- 宏定义 ---- */
 
-#define EDITOR_VERSION "1.0.1"
+#define EDITOR_VERSION "1.0.2"
 #define EDITOR_NAME    "墨流苏"
 
 #define MAX_LINE_SIZE  1024
@@ -29,6 +30,23 @@ enum
     MENU_TOP_CLOUD,
     MENU_TOP_HELP,
     MENU_TOP_COUNT
+};
+
+/* ---- 右侧菜单枚举 ---- */
+
+enum
+{
+    MENU_RIGHT_LANG = 0,
+    MENU_RIGHT_COUNT
+};
+
+/* ---- 语言菜单项 ---- */
+
+enum
+{
+    MENU_LANG_ZH = 0,
+    MENU_LANG_EN,
+    MENU_LANG_COUNT
 };
 
 /* ---- 文件菜单项 (含分割线) ---- */
@@ -100,6 +118,8 @@ typedef struct
     int   menu_active;
     int   menu_top_sel;
     int   menu_sel;
+    int   menu_right_active;
+    int   menu_right_sel;
 
     int   running;
 

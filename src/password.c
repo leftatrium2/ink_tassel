@@ -38,7 +38,7 @@ int password_verify(void)
     curs_set(1);
     move(LINES - 1, 0);
     clrtoeol();
-    mvaddstr(LINES - 1, 0, "请输入密码: ");
+    mvaddstr(LINES - 1, 0, T(STR_PROMPT_ENTER_PWD));
     refresh();
 
     {
@@ -68,9 +68,9 @@ int password_verify(void)
                 {
                     pos--;
                     input[pos] = '\0';
-                    move(LINES - 1, (int)strlen("请输入密码: ") + pos);
+                    move(LINES - 1, (int)strlen(T(STR_PROMPT_ENTER_PWD)) + pos);
                     addch(' ');
-                    move(LINES - 1, (int)strlen("请输入密码: ") + pos);
+                    move(LINES - 1, (int)strlen(T(STR_PROMPT_ENTER_PWD)) + pos);
                 }
             }
             else if (ch >= 32 && ch < 127 && pos < 63)
