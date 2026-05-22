@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
-/* 最大临时行数 */
+/* Maximum temporary line count */
 #define TEMP_MAX_LINES  20000
 
 int file_read(const char *filename)
@@ -25,7 +25,7 @@ int file_read(const char *filename)
     temp_lines = (char **)malloc(sizeof(char *) * (size_t)temp_cap);
     temp_count = 0;
 
-    /* 读取全部行 */
+    /* Read all lines */
     while (fgets(buf, MAX_LINE_SIZE, fp) != NULL)
     {
         int len;
@@ -33,7 +33,7 @@ int file_read(const char *filename)
 
         len = (int)strlen(buf);
 
-        /* 去除尾部换行符 */
+        /* Strip trailing newline */
         if (len > 0 && buf[len - 1] == '\n')
         {
             buf[len - 1] = '\0';
@@ -45,7 +45,7 @@ int file_read(const char *filename)
             len--;
         }
 
-        /* 扩展临时数组 */
+        /* Expand temporary array */
         if (temp_count >= temp_cap)
         {
             temp_cap += LINE_CAP_STEP;
@@ -56,7 +56,7 @@ int file_read(const char *filename)
         line = (char *)malloc((size_t)(len + 1));
         memcpy(line, buf, (size_t)(len + 1));
 
-        /* 如果有密码，解密 */
+        /* Decrypt if password is set */
         if (g_editor.has_password)
         {
             password_xor_crypt(line, len, g_editor.password);
@@ -72,10 +72,10 @@ int file_read(const char *filename)
 
     fclose(fp);
 
-    /* 清空当前缓冲区 */
+    /* Clear current buffer */
     buffer_free();
 
-    /* 加载到编辑器缓冲区 */
+    /* Load into editor buffer */
     g_editor.lines = (LINE *)malloc(sizeof(LINE) * LINE_CAP_INIT);
     g_editor.cap_lines = LINE_CAP_INIT;
     g_editor.num_lines = 0;
@@ -84,7 +84,7 @@ int file_read(const char *filename)
 
     if (temp_count > 0)
     {
-        /* 取第一行内容替换默认空行 */
+        /* Replace default empty line with first line content */
         LINE *first;
         int first_len;
 
@@ -102,7 +102,7 @@ int file_read(const char *filename)
 
         g_editor.num_lines = 1;
 
-        /* 追加剩余行 */
+        /* Append remaining lines */
         for (i = 1; i < temp_count; i++)
         {
             int line_len;
@@ -110,7 +110,7 @@ int file_read(const char *filename)
 
             line_len = (int)strlen(temp_lines[i]);
 
-            /* 扩展行数组 */
+            /* Expand line array */
             if (g_editor.num_lines >= g_editor.cap_lines)
             {
                 g_editor.cap_lines += LINE_CAP_STEP;
@@ -132,7 +132,7 @@ int file_read(const char *filename)
         }
     }
 
-    /* 释放临时行 */
+    /* Free temporary lines */
     for (i = 0; i < temp_count; i++)
     {
         free(temp_lines[i]);
@@ -166,19 +166,19 @@ int file_write(const char *filename)
         memcpy(write_buf, line->data, (size_t)write_len);
         write_buf[write_len] = '\0';
 
-        /* 如果有密码，加密 */
+        /* Encrypt if password is set */
         if (g_editor.has_password)
         {
             password_xor_crypt(write_buf, write_len, g_editor.password);
         }
 
-        /* 写入行内容 */
+        /* Write line content */
         if (write_len > 0)
         {
             fputs(write_buf, fp);
         }
 
-        /* 最后一行不写换行符 */
+        /* No newline after last line */
         if (i < g_editor.num_lines - 1)
         {
             fputc('\n', fp);

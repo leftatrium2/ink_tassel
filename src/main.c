@@ -11,10 +11,10 @@ int main(int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    /* 设置本地化以支持中文显示和输入 */
+    /* Set locale for CJK display and input */
     setlocale(LC_ALL, "");
 
-    /* ncurses 初始化 */
+    /* ncurses initialization */
     initscr();
     cbreak();
     keypad(stdscr, TRUE);
@@ -22,10 +22,10 @@ int main(int argc, char *argv[])
     curs_set(1);
     set_escdelay(25);
 
-    /* 编辑器初始化 */
+    /* Editor initialization */
     editor_init();
 
-    /* 从命令行参数加载文件 */
+    /* Load file from command line argument */
     if (argc > 1)
     {
         if (file_read(argv[1]) == 0)
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* 主循环 */
+    /* Main loop */
     while (g_editor.running)
     {
         display_refresh();
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         {
             int visible_rows;
 
-            /* 终端尺寸变化: 钳制光标和滚动位置, 清屏后重绘 */
+            /* Terminal resize: clamp cursor and scroll position, redraw */
             visible_rows = LINES - 2;
             if (visible_rows < 1)
             {
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* 清理退出 */
+    /* Cleanup and exit */
     editor_cleanup();
     endwin();
 

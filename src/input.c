@@ -2,7 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 
-/* ---- 光标移动辅助函数 ---- */
+/* ---- Cursor movement helpers ---- */
 
 static void cursor_move_up(void)
 {
@@ -143,7 +143,7 @@ static void cursor_page_down(void)
     }
 }
 
-/* ---- 打开文件对话框 ---- */
+/* ---- Open file dialog ---- */
 
 static void prompt_open_file(void)
 {
@@ -192,7 +192,7 @@ static void prompt_open_file(void)
                 pos = utf8_prev_char_start(input, pos);
                 input[pos] = '\0';
 
-                /* 清空输入区并重新显示剩余内容 */
+                /* Clear input area and redisplay remaining content */
                 move(LINES - 1, prompt_width);
                 clrtoeol();
                 addstr(input);
@@ -215,7 +215,7 @@ static void prompt_open_file(void)
                 }
                 input[pos] = '\0';
 
-                /* 清空并重新显示整个输入区 */
+                /* Clear and redisplay entire input area */
                 move(LINES - 1, prompt_width);
                 clrtoeol();
                 addstr(input);
@@ -252,13 +252,13 @@ static void prompt_open_file(void)
     }
 }
 
-/* ---- 主输入处理 ---- */
+/* ---- Main input handler ---- */
 
 int input_process_key(wint_t ch)
 {
     switch (ch)
     {
-        /* ---- 导航键 ---- */
+        /* ---- Navigation keys ---- */
         case KEY_UP:
             cursor_move_up();
             break;
@@ -291,7 +291,7 @@ int input_process_key(wint_t ch)
             cursor_page_down();
             break;
 
-        /* ---- 编辑键 ---- */
+        /* ---- Edit keys ---- */
         case KEY_BACKSPACE:
         case 127:
         case '\b':
@@ -312,15 +312,15 @@ int input_process_key(wint_t ch)
             buffer_insert_char(L'\t');
             break;
 
-        /* ---- ESC 菜单 ---- */
+        /* ---- ESC menu ---- */
         case 27:
             g_editor.menu_active = 1;
             g_editor.menu_top_sel = 0;
             g_editor.menu_sel = 0;
             break;
 
-        /* ---- Ctrl 组合键 ---- */
-        case 19:  /* Ctrl+S: 保存 */
+        /* ---- Ctrl key combinations ---- */
+        case 19:  /* Ctrl+S: save */
             if (g_editor.has_filename)
             {
                 if (file_write(g_editor.filename) == 0)
@@ -341,12 +341,12 @@ int input_process_key(wint_t ch)
             }
             break;
 
-        case 15:  /* Ctrl+O: 打开文件 */
+        case 15:  /* Ctrl+O: open file */
             prompt_open_file();
             break;
 
         default:
-            /* 可打印字符 (包括中文) */
+            /* Printable characters (including CJK) */
             if (ch >= 32)
             {
                 buffer_insert_char(ch);

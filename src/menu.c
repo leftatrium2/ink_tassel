@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
-/* ---- 菜单数据定义 ---- */
+/* ---- Menu data definitions ---- */
 
 #define MENU_SEPARATOR "--------"
 #define MENU_WIDTH 24
@@ -43,7 +43,7 @@ static int g_lang_keys[MENU_LANG_COUNT] =
     STR_LANG_EN
 };
 
-/* ---- 获取当前菜单的项数 ---- */
+/* ---- Get current menu item count ---- */
 
 static int menu_item_count(int top_sel)
 {
@@ -57,7 +57,7 @@ static int menu_item_count(int top_sel)
     }
 }
 
-/* ---- 获取菜单项文本 ---- */
+/* ---- Get menu item text ---- */
 
 static const char *menu_item_text(int top_sel, int idx)
 {
@@ -77,7 +77,7 @@ static const char *menu_item_text(int top_sel, int idx)
     return T(keys[idx]);
 }
 
-/* ---- 判断是否为分割线 ---- */
+/* ---- Check if item is a separator ---- */
 
 static int is_separator_idx(int top_sel, int idx)
 {
@@ -91,7 +91,7 @@ static int is_separator_idx(int top_sel, int idx)
     return (keys[idx] < 0);
 }
 
-/* ---- 辅助: 底部输入提示 ---- */
+/* ---- Helper: bottom input prompt ---- */
 
 static void prompt_input(const char *prompt_str, char *out_buf, int buf_size)
 {
@@ -162,7 +162,7 @@ static void prompt_input(const char *prompt_str, char *out_buf, int buf_size)
     curs_set(1);
 }
 
-/* ---- 菜单回调: 文件 ---- */
+/* ---- Menu callbacks: File ---- */
 
 static void menu_action_save(void)
 {
@@ -279,7 +279,7 @@ static void menu_action_about(void)
              T(STR_MSG_ABOUT_FMT), EDITOR_NAME, EDITOR_VERSION);
 }
 
-/* ---- 执行菜单项 ---- */
+/* ---- Execute menu item ---- */
 
 static void menu_execute(int top_sel, int sel)
 {
@@ -322,7 +322,7 @@ static void menu_execute(int top_sel, int sel)
     }
 }
 
-/* ---- 执行右侧语言菜单 ---- */
+/* ---- Execute right-side language menu ---- */
 
 static void menu_execute_lang(int sel)
 {
@@ -336,7 +336,7 @@ static void menu_execute_lang(int sel)
              EDITOR_NAME " " EDITOR_VERSION " - %s", T(STR_MSG_ESC_MENU));
 }
 
-/* ---- 绘制顶部菜单栏 ---- */
+/* ---- Draw top menu bar ---- */
 
 static void menu_draw_top_bar(void)
 {
@@ -378,7 +378,7 @@ static void menu_draw_top_bar(void)
         attroff(A_REVERSE);
 }
 
-/* ---- 计算左侧子菜单X偏移 ---- */
+/* ---- Calculate left submenu X offset ---- */
 
 static int menu_sub_x(int top_sel)
 {
@@ -391,7 +391,7 @@ static int menu_sub_x(int top_sel)
 
 /* MENU_DRAW_START */
 
-/* ---- 绘制子菜单 ---- */
+/* ---- Draw submenu ---- */
 
 void menu_draw(void)
 {
@@ -501,7 +501,7 @@ void menu_draw(void)
     addch('+');
 }
 
-/* ---- 跳过分割线辅助 ---- */
+/* ---- Skip separator helper ---- */
 
 static void menu_sel_skip_sep_down(void)
 {
@@ -524,7 +524,7 @@ static void menu_sel_skip_sep_up(void)
 
 /* MENU_HANDLE_KEY_START */
 
-/* ---- 菜单按键处理 ---- */
+/* ---- Menu key handler ---- */
 
 int menu_handle_key(int ch)
 {

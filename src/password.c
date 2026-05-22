@@ -21,8 +21,8 @@ void password_xor_crypt(char *data, int len, const char *key)
 
 void password_set(void)
 {
-    /* 密码设置通过 menu_action_set_password 完成 */
-    /* 此函数保留给未来独立调用 */
+    /* Password setting is done via menu_action_set_password */
+    /* This function is reserved for future standalone use */
 }
 
 int password_verify(void)

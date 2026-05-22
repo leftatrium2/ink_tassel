@@ -6,10 +6,10 @@
 #include <wchar.h>
 #include "i18n.h"
 
-/* ---- 宏定义 ---- */
+/* ---- Macro definitions ---- */
 
 #define EDITOR_VERSION "1.0.2"
-#define EDITOR_NAME    "墨流苏"
+#define EDITOR_NAME    "Ink Tassel"
 
 #define MAX_LINE_SIZE  1024
 #define MAX_LINES      10000
@@ -21,7 +21,7 @@
 #define LINE_DATA_INIT 128
 #define LINE_DATA_STEP 64
 
-/* ---- 顶级菜单枚举 ---- */
+/* ---- Top-level menu enum ---- */
 
 enum
 {
@@ -32,7 +32,7 @@ enum
     MENU_TOP_COUNT
 };
 
-/* ---- 右侧菜单枚举 ---- */
+/* ---- Right menu enum ---- */
 
 enum
 {
@@ -40,7 +40,7 @@ enum
     MENU_RIGHT_COUNT
 };
 
-/* ---- 语言菜单项 ---- */
+/* ---- Language menu items ---- */
 
 enum
 {
@@ -49,7 +49,7 @@ enum
     MENU_LANG_COUNT
 };
 
-/* ---- 文件菜单项 (含分割线) ---- */
+/* ---- File menu items (with separator) ---- */
 
 enum
 {
@@ -63,7 +63,7 @@ enum
     MENU_FILE_COUNT
 };
 
-/* ---- 编辑菜单项 ---- */
+/* ---- Edit menu items ---- */
 
 enum
 {
@@ -74,7 +74,7 @@ enum
     MENU_EDIT_COUNT
 };
 
-/* ---- 云存储菜单项 ---- */
+/* ---- Cloud storage menu items ---- */
 
 enum
 {
@@ -82,7 +82,7 @@ enum
     MENU_CLOUD_COUNT
 };
 
-/* ---- 帮助菜单项 ---- */
+/* ---- Help menu items ---- */
 
 enum
 {
@@ -90,7 +90,7 @@ enum
     MENU_HELP_COUNT
 };
 
-/* ---- 行结构 ---- */
+/* ---- Line structure ---- */
 
 typedef struct
 {
@@ -99,7 +99,7 @@ typedef struct
     int   len;
 } LINE;
 
-/* ---- 编辑器全局状态 ---- */
+/* ---- Editor global state ---- */
 
 typedef struct
 {
@@ -129,7 +129,7 @@ typedef struct
     char  msg[MSG_SIZE];
 } EDITOR;
 
-/* ---- 全局变量声明 ---- */
+/* ---- Global variable declarations ---- */
 
 extern EDITOR g_editor;
 

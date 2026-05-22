@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
-/* ---- 内部光标位置（由 display_text_area 设置） ---- */
+/* ---- Internal cursor position (set by display_text_area) ---- */
 static int g_cursor_row = -1;
 static int g_cursor_col = -1;
 
@@ -18,7 +18,7 @@ void display_status_bar(void)
         max_x = (int)(sizeof(status) - 1);
     }
 
-    /* 计算光标的显示列（非字节偏移） */
+    /* Calculate cursor display column (not byte offset) */
     if (g_editor.cur_row >= 0 && g_editor.cur_row < g_editor.num_lines)
     {
         LINE *line = &g_editor.lines[g_editor.cur_row];
@@ -59,7 +59,7 @@ void display_status_bar(void)
                  g_editor.modified ? T(STR_STATUS_MODIFIED) : "");
     }
 
-    /* 填充空白至行尾 */
+    /* Pad with spaces to end of line */
     {
         int len = (int)strlen(status);
         while (len < max_x)
@@ -99,7 +99,7 @@ void display_text_area(void)
                 int start_disp = 0;
                 int x = 0;
 
-                /* 计算当前行的水平滚动偏移 */
+                /* Calculate horizontal scroll offset for current line */
                 if (g_editor.cur_row == line_idx)
                 {
                     int cursor_disp = utf8_byte_offset_to_display_col(
@@ -110,7 +110,7 @@ void display_text_area(void)
                     }
                 }
 
-                /* 逐字符渲染 */
+                /* Render character by character */
                 while (x < line->len)
                 {
                     unsigned char ch;
@@ -186,7 +186,7 @@ void display_text_area(void)
                     x += bytes;
                 }
 
-                /* 记录光标行位置 */
+                /* Record cursor row position */
                 if (line_idx == g_editor.cur_row)
                 {
                     int cursor_disp = utf8_byte_offset_to_display_col(
@@ -235,7 +235,7 @@ void display_refresh(void)
 
     display_message_line();
 
-    /* 最后放置光标，确保不被其他绘制覆盖 */
+    /* Place cursor last to avoid being overwritten by other draws */
     if (g_cursor_row > 0)
     {
         move(g_cursor_row, g_cursor_col);

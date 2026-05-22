@@ -89,19 +89,19 @@ int buffer_insert_char(wint_t ch)
         g_editor.cur_row = g_editor.num_lines - 1;
     }
 
-    /* 将宽字符编码为 UTF-8 */
+    /* Encode wide character to UTF-8 */
     bytes = utf8_encode(ch, utf8);
 
     line = &g_editor.lines[g_editor.cur_row];
     line_ensure_capacity(line, line->len + bytes);
 
-    /* 插入位置之后字符后移 */
+    /* Shift characters after insertion point */
     for (i = line->len; i > g_editor.cur_col; i--)
     {
         line->data[i + bytes - 1] = line->data[i - 1];
     }
 
-    /* 插入 UTF-8 字节 */
+    /* Insert UTF-8 bytes */
     for (i = 0; i < bytes; i++)
     {
         line->data[g_editor.cur_col + i] = utf8[i];
@@ -122,7 +122,7 @@ int buffer_delete_char(void)
     int prev_start;
     int char_bytes;
 
-    /* 如果光标在行首且不是第一行，则合并到上一行 */
+    /* If cursor is at line start and not first line, merge with previous line */
     if (g_editor.cur_col == 0 && g_editor.cur_row > 0)
     {
         LINE *prev_line;
@@ -145,14 +145,14 @@ int buffer_delete_char(void)
         return 0;
     }
 
-    /* 在行内删除光标前一个字符（多字节感知） */
+    /* Delete character before cursor within line (multibyte-aware) */
     if (g_editor.cur_col > 0)
     {
         line = &g_editor.lines[g_editor.cur_row];
         prev_start = utf8_prev_char_start(line->data, g_editor.cur_col);
         char_bytes = g_editor.cur_col - prev_start;
 
-        /* 将后面的字符前移 */
+        /* Shift subsequent characters forward */
         for (i = prev_start; i < line->len - char_bytes; i++)
         {
             line->data[i] = line->data[i + char_bytes];
@@ -181,7 +181,7 @@ int buffer_delete_char_forward(void)
 
     line = &g_editor.lines[g_editor.cur_row];
 
-    /* 光标在行尾: 合并下一行到当前行 */
+    /* Cursor at end of line: merge next line into current */
     if (g_editor.cur_col >= line->len && g_editor.cur_row + 1 < g_editor.num_lines)
     {
         LINE *next_line;
@@ -195,7 +195,7 @@ int buffer_delete_char_forward(void)
         return 0;
     }
 
-    /* 删除光标处字符（多字节感知） */
+    /* Delete character at cursor (multibyte-aware) */
     if (g_editor.cur_col < line->len)
     {
         int i;
@@ -235,7 +235,7 @@ int buffer_insert_newline(void)
         return -1;
     }
 
-    /* 将当前行之后的行后移 */
+    /* Shift lines after current line down */
     for (i = g_editor.num_lines; i > g_editor.cur_row + 1; i--)
     {
         g_editor.lines[i] = g_editor.lines[i - 1];
@@ -243,7 +243,7 @@ int buffer_insert_newline(void)
 
     g_editor.num_lines++;
 
-    /* 初始化新行 */
+    /* Initialize new line */
     {
         int new_idx = g_editor.cur_row + 1;
         g_editor.lines[new_idx].size = LINE_DATA_INIT;
@@ -252,7 +252,7 @@ int buffer_insert_newline(void)
         g_editor.lines[new_idx].data[0] = '\0';
     }
 
-    /* 将光标后的内容移到新行 */
+    /* Move content after cursor to new line */
     remain_len = line->len - g_editor.cur_col;
     if (remain_len > 0)
     {
@@ -318,7 +318,7 @@ int buffer_delete_line_at(int row)
     return 0;
 }
 
-/* ---- UTF-8 辅助函数 ---- */
+/* ---- UTF-8 helper functions ---- */
 
 int utf8_char_bytes(const char *s, int pos)
 {
@@ -353,7 +353,7 @@ int utf8_prev_char_start(const char *s, int pos)
 
     pos--;
 
-    /* 跳过 UTF-8 续字节 (10xxxxxx) */
+    /* Skip UTF-8 continuation bytes (10xxxxxx) */
     while (pos > 0 && ((unsigned char)s[pos] & 0xC0) == 0x80)
     {
         pos--;
