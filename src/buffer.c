@@ -465,7 +465,7 @@ int utf8_byte_offset_to_display_col(const char *s, int byte_offset)
 
 int utf8_encode(wint_t wch, char *out)
 {
-    if (wch < 0)
+    if (wch == (wint_t)WEOF)
     {
         out[0] = '\0';
         return 0;

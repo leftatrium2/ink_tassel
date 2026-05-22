@@ -7,6 +7,13 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 find_package(Curses REQUIRED)
 
+if(NOT APPLE)
+    find_library(NCURSESW_LIBRARY ncursesw)
+    if(NCURSESW_LIBRARY)
+        set(CURSES_LIBRARIES ${NCURSESW_LIBRARY})
+    endif()
+endif()
+
 set(SOURCES
     src/main.c
     src/editor.c
@@ -21,5 +28,5 @@ set(SOURCES
 
 add_executable(ink_tassel ${SOURCES})
 
-target_include_directories(ink_tassel PRIVATE include)
+target_include_directories(ink_tassel PRIVATE include ${CURSES_INCLUDE_DIRS})
 target_link_libraries(ink_tassel PRIVATE ${CURSES_LIBRARIES})

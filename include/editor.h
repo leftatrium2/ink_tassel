@@ -1,6 +1,7 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
+#define _XOPEN_SOURCE 600
 #define _XOPEN_SOURCE_EXTENDED 1
 #include <ncurses.h>
 #include <wchar.h>
