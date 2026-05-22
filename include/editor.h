@@ -7,7 +7,7 @@
 
 /* ---- 宏定义 ---- */
 
-#define EDITOR_VERSION "1.0.0"
+#define EDITOR_VERSION "1.0.1"
 #define EDITOR_NAME    "墨流苏"
 
 #define MAX_LINE_SIZE  1024
@@ -20,7 +20,18 @@
 #define LINE_DATA_INIT 128
 #define LINE_DATA_STEP 64
 
-/* ---- 菜单项枚举 ---- */
+/* ---- 顶级菜单枚举 ---- */
+
+enum
+{
+    MENU_TOP_FILE = 0,
+    MENU_TOP_EDIT,
+    MENU_TOP_CLOUD,
+    MENU_TOP_HELP,
+    MENU_TOP_COUNT
+};
+
+/* ---- 文件菜单项 (含分割线) ---- */
 
 enum
 {
@@ -29,10 +40,37 @@ enum
     MENU_FILE_DISCARD,
     MENU_FILE_READ,
     MENU_FILE_SET_PASSWORD,
+    MENU_FILE_SEP,
+    MENU_FILE_SETTINGS,
     MENU_FILE_COUNT
 };
 
-#define MENU_FILE_ITEMS 5
+/* ---- 编辑菜单项 ---- */
+
+enum
+{
+    MENU_EDIT_UNDO = 0,
+    MENU_EDIT_REDO,
+    MENU_EDIT_SEP,
+    MENU_EDIT_FIND,
+    MENU_EDIT_COUNT
+};
+
+/* ---- 云存储菜单项 ---- */
+
+enum
+{
+    MENU_CLOUD_SYNC = 0,
+    MENU_CLOUD_COUNT
+};
+
+/* ---- 帮助菜单项 ---- */
+
+enum
+{
+    MENU_HELP_ABOUT = 0,
+    MENU_HELP_COUNT
+};
 
 /* ---- 行结构 ---- */
 
@@ -60,6 +98,7 @@ typedef struct
     int   has_filename;
 
     int   menu_active;
+    int   menu_top_sel;
     int   menu_sel;
 
     int   running;

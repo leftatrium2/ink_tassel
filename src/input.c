@@ -314,6 +314,7 @@ int input_process_key(wint_t ch)
         /* ---- ESC 菜单 ---- */
         case 27:
             g_editor.menu_active = 1;
+            g_editor.menu_top_sel = 0;
             g_editor.menu_sel = 0;
             break;
 
